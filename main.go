@@ -5,16 +5,10 @@ Copyright 2019 Alexander Eldeib.
 package main
 
 import (
-	"encoding/json"
 	"flag"
-	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
-	"strings"
 
-	"github.com/alexeldeib/cerberus/pkg/imds"
-	"github.com/sanity-io/litter"
+	"github.com/alexeldeib/cerberus/pkg/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -31,18 +25,6 @@ func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
-}
-
-type Configuration struct {
-	Cloud             string            `json:"cloud"`
-	Location          Location          `json:"location"`
-	ResourceGroupName string            `json:"resourceGroupName"`
-	Tags              map[string]string `json:"tags"`
-}
-
-type Location struct {
-	Canonical string `json:"canonical"`
-	Short     string `json:"short"`
 }
 
 func main() {
@@ -63,51 +45,21 @@ func main() {
 		LeaderElection:     enableLeaderElection,
 		Port:               9443,
 	})
+
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
 
-	client := &http.Client{}
+	client := mgr.GetClient()
+	// log := ctrl.Log.WithName("cerberus")
 
-	req, _ := http.NewRequest("GET", "http://169.254.169.254/metadata/instance", nil)
-	req.Header.Add("Metadata", "True")
-
-	q := req.URL.Query()
-	q.Add("format", "json")
-	q.Add("api-version", "2019-03-11")
-	req.URL.RawQuery = q.Encode()
-
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println("Errored when sending request to the server")
-		return
+	if err := (&controllers.ConfigMapController{
+		Client: client,
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to start manager")
+		os.Exit(1)
 	}
-
-	defer resp.Body.Close()
-	resp_body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		setupLog.Error(err, "failed reading json")
-	}
-
-	var data imds.Metadata
-	if err := json.Unmarshal(resp_body, &data); err != nil {
-		setupLog.Error(err, "failed unmarshalling json")
-	}
-
-	litter.Dump(data)
-
-	log := ctrl.Log.WithName("cerberus")
-	log.Info("passed data dump")
-
-	tags := map[string]string{}
-	tagString := strings.Split(data.Compute.Tags, ";")
-	for _, tag := range tagString {
-		tuple := strings.Split(tag, ":")
-		tags[tuple[0]] = tuple[1]
-	}
-
-	litter.Dump(tags)
 
 	// +kubebuilder:scaffold:builder
 
