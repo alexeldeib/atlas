@@ -39,7 +39,7 @@ func (r *ConfigMapController) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
-	cm, err := configmap.New(data, "default")
+	cm, err := configmap.New(data, ns.Name)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
