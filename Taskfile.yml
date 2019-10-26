@@ -1,0 +1,20 @@
+# https://taskfile.dev
+
+version: '2'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - |
+        kind create cluster || true 
+        export KUBECONFIG=$(kind get kubeconfig-path)
+        kubectl cluster-info
+        USE_EXISTING_CLUSTER=true make test
+    silent: true
+  clean: 
+    cmds:
+      - kind delete cluster || true
+    silent: true

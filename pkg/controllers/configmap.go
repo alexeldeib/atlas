@@ -7,8 +7,8 @@ package controllers
 import (
 	"context"
 
-	"github.com/alexeldeib/cerberus/pkg/configmap"
-	"github.com/alexeldeib/cerberus/pkg/imds"
+	"github.com/alexeldeib/atlas/pkg/configmap"
+	"github.com/alexeldeib/atlas/pkg/imds"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"

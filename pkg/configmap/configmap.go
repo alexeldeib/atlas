@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/alexeldeib/cerberus/pkg/imds"
+	"github.com/alexeldeib/atlas/pkg/imds"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

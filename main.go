@@ -8,7 +8,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/alexeldeib/cerberus/pkg/controllers"
+	"github.com/alexeldeib/atlas/pkg/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -52,7 +52,7 @@ func main() {
 	}
 
 	client := mgr.GetClient()
-	// log := ctrl.Log.WithName("cerberus")
+	// log := ctrl.Log.WithName("atlas")
 
 	if err := (&controllers.ConfigMapController{
 		Client: client,

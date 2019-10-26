@@ -26,14 +26,37 @@ spec:
       - command:
         - /manager
         args:
-        - --enable-leader-election
+        - "--enable-leader-election"
+        - "--metrics-addr=0.0.0.0:8080"
+        ports:
+        - containerPort: 8080
+          name: http
         image: controller:latest
         name: manager
         resources:
           limits:
-            cpu: 100m
-            memory: 30Mi
+            cpu: 1000m
+            memory: 1000Mi
           requests:
-            cpu: 100m
-            memory: 20Mi
+            cpu: 1000m
+            memory: 1000Mi
       terminationGracePeriodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/port: "8080"
+    prometheus.io/scheme: http
+    prometheus.io/scrape: "true"
+  labels:
+    control-plane: controller-manager
+  name: manager-metrics-service
+  namespace: system
+spec:
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+  selector:
+    control-plane: controller-manager

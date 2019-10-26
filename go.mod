@@ -1,9 +1,12 @@
-module github.com/alexeldeib/cerberus
+module github.com/alexeldeib/atlas
 
 go 1.13
 
 require (
+	github.com/alexeldeib/cerberus v0.0.0-20191026062036-a6e4c992af13 // indirect
 	github.com/alexeldeib/incendiary-iguana v0.0.13
+	github.com/onsi/ginkgo v1.10.1
+	github.com/onsi/gomega v1.7.0
 	github.com/prometheus/common v0.7.0
 	github.com/sanity-io/litter v1.2.0
 	k8s.io/api v0.0.0-20190918195907-bd6ac527cfd2

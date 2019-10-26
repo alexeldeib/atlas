@@ -1,6 +1,6 @@
 
 # Image URL to use all building/pushing image targets
-IMG ?= alexeldeib/cerberus:latest
+IMG ?= alexeldeib/atlas:latest
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true"
 
@@ -15,7 +15,7 @@ all: manager
 
 # Run tests
 test: generate fmt vet manifests
-	go test ./... -coverprofile cover.out
+	go test -v ./... -coverprofile cover.out
 
 # Build manager binary
 manager: generate fmt vet
