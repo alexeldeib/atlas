@@ -34,7 +34,7 @@ require (
 	sigs.k8s.io/controller-runtime v0.3.0
 )
 
-// `go mod tidy` often breaks kubernetes dependencies. If that happens, 
+// `go mod tidy` often breaks kubernetes dependencies. If that happens,
 // you need to pin stable combinations of the following four repositories.
 // you need to take whatever version controller runtime uses, which is here for v0.3.0
 //
