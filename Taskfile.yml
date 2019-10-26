@@ -3,18 +3,61 @@
 version: '2'
 
 vars:
-  GREETING: Hello, World!
+  VERBOSE: ''
 
 tasks:
   default:
     cmds:
-      - |
-        kind create cluster || true 
-        export KUBECONFIG=$(kind get kubeconfig-path)
-        kubectl cluster-info
-        USE_EXISTING_CLUSTER=true make test
+      - task: unit
     silent: true
+
+  # Core
+  build:
+    cmds:
+    - go build -o bin/manager.exe main.go
+  generate:
+    cmds:
+    - controller-gen object:headerFile=./hack/boilerplate.go.txt paths="./..."
+  manifests:
+    cmds:
+    - task: generate
+    - controller-gen "crd:trivialVersions=true" rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+  
+  # Test fixtures
+  test:
+    cmds:
+    - task: unit
+    - task: e2e
+  e2e:
+    cmds:
+    - |
+      kind create cluster || true 
+      export KUBECONFIG=$(kind get kubeconfig-path)
+      kubectl cluster-info
+      export USE_EXISTING_CLUSTER=true
+      ginkgo -randomizeSuites -stream --slowSpecThreshold=180 -v -r ./pkg/controllers
+  unit:
+    cmds:
+    - "{{ if not .VERBOSE }} go test -coverprofile cover.out ./pkg/configmap {{ end }}"
+    - "{{ if .VERBOSE }} go test -coverprofile cover.out -v ./pkg/configmap {{ end }}"
+  
+  # E2E cleanup of kind docker containers
   clean: 
     cmds:
-      - kind delete cluster || true
+    - kind delete cluster || true
     silent: true
+
+  # Formatting and linting
+  fmt:
+    cmds:
+    - gofmt -w -s ./pkg
+    - goimports -local github.com/alexeldeib/atlas -w . 
+  lint:
+    cmds:
+    - golangci-lint run --fix -c .golangci.yml
+
+  # Header enforcement
+  license:
+    cmds:
+    - GO111MODULE=on go get -u github.com/google/addlicense
+    - addlicense -f ./hack/boilerplate.go.txt -c "Alexander Eldeib" ./pkg 

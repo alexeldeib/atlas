@@ -1,25 +1,24 @@
-// /*
 // Copyright 2019 Alexander Eldeib.
-// */
 
 package controllers
 
 import (
 	"context"
 
-	"github.com/alexeldeib/atlas/pkg/configmap"
-	"github.com/alexeldeib/atlas/pkg/imds"
 	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	"github.com/alexeldeib/atlas/pkg/configmap"
+	"github.com/alexeldeib/atlas/pkg/imds"
 )
 
 // ConfigMapController reconciles a managed identity
 type ConfigMapController struct {
 	client.Client
+	*imds.Metadata
 }
 
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch
@@ -29,17 +28,12 @@ type ConfigMapController struct {
 func (r *ConfigMapController) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
 
-	var ns v1.Namespace
+	var ns corev1.Namespace
 	if err := r.Get(ctx, req.NamespacedName, &ns); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	data, err := imds.New()
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	cm, err := configmap.New(data, ns.Name)
+	cm, err := configmap.New(r.Metadata, ns.Name)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

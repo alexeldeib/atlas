@@ -1,23 +1,15 @@
-/*
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// Copyright 2019 Alexander Eldeib.
 
 package controllers
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/alexeldeib/atlas/pkg/imds"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -35,8 +27,9 @@ import (
 // http://onsi.github.io/ginkgo/ to learn more about Ginkgo.
 
 var cfg *rest.Config
-var k8sclient client.Client
+var k8sClient client.Client
 var testEnv *envtest.Environment
+var imdsData imds.Metadata
 
 func TestAPIs(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -49,10 +42,19 @@ func TestAPIs(t *testing.T) {
 var _ = BeforeSuite(func(done Done) {
 	logf.SetLogger(zap.LoggerTo(GinkgoWriter, true))
 
+	By("Setting up fake instance metadata")
+	wd, err := os.Getwd()
+	Expect(err).ToNot(HaveOccurred())
+
+	contents, err := ioutil.ReadFile(filepath.Join(wd, "../../testdata/fake.json"))
+	Expect(err).ToNot(HaveOccurred())
+
+	err = json.Unmarshal(contents, &imdsData)
+	Expect(err).ToNot(HaveOccurred())
+
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{}
 
-	var err error
 	cfg, err = testEnv.Start()
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cfg).ToNot(BeNil())
@@ -64,8 +66,14 @@ var _ = BeforeSuite(func(done Done) {
 	})
 	Expect(err).ToNot(HaveOccurred())
 
-	k8sclient = k8sManager.GetClient()
-	Expect(k8sclient).ToNot(BeNil())
+	k8sClient = k8sManager.GetClient()
+	Expect(k8sClient).ToNot(BeNil())
+
+	err = (&ConfigMapController{
+		Client:   k8sClient,
+		Metadata: &imdsData,
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
 
 	go func() {
 		err = k8sManager.Start(ctrl.SetupSignalHandler())

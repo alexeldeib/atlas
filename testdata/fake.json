@@ -1,0 +1,36 @@
+{
+    "compute": {
+        "azEnvironment": "AzurePublicCloud",
+        "customData": "HUGE_BASE64_BLOB",
+        "location": "eastus2",
+        "name": "baz",
+        "offer": "UbuntuServer",
+        "osType": "Linux",
+        "placementGroupId": "foo",
+        "plan": {
+            "name": "",
+            "product": "",
+            "publisher": ""
+        },
+        "platformFaultDomain": "0",
+        "platformUpdateDomain": "0",
+        "provider": "Microsoft.Compute",
+        "publicKeys": [
+            {
+                "keyData": "SSH_PUB_KEY",
+                "path": "/home/azureuser/.ssh/authorized_keys"
+            }
+        ],
+        "publisher": "Canonical",
+        "resourceGroupName": "bar",
+        "resourceId": "/subscriptions/foo/resourceGroups/bar/providers/Microsoft.Compute/virtualMachines/baz",
+        "sku": "18.04-LTS",
+        "subscriptionId": "foo",
+        "tags": "acsengineVersion:v0.0.0;clusterName:bar;creationSource:aksengine-k8s-master;logAnalyticsWorkspaceResourceId:/subscriptions/foo/resourceGroups/bar/providers/Microsoft.OperationalInsights/workspaces/baz;orchestrator:kubernetes",
+        "version": "18.04.201909030",
+        "vmId": "foo",
+        "vmScaleSetName": "default-ae90a13e-5da68c2c",
+        "vmSize": "Standard_E4s_v3",
+        "zone": "1"
+    }
+}

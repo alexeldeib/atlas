@@ -1,6 +1,4 @@
-/*
-Copyright 2019 Alexander Eldeib.
-*/
+// Copyright 2019 Alexander Eldeib.
 
 package imds
 
@@ -8,12 +6,17 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
-func New() (Metadata, error) {
+func New() (*Metadata, error) {
 	client := &http.Client{}
 
-	req, _ := http.NewRequest("GET", "http://169.254.169.254/metadata/instance", nil)
+	req, err := http.NewRequest("GET", "http://169.254.169.254/metadata/instance", nil)
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header.Add("Metadata", "True")
 
 	q := req.URL.Query()
@@ -23,30 +26,29 @@ func New() (Metadata, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return Metadata{}, err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
-	resp_body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return Metadata{}, err
+		return nil, err
 	}
 
-	var data Metadata
-	err = json.Unmarshal(resp_body, &data)
+	data := &Metadata{}
+	err = json.Unmarshal(body, data)
 	return data, err
+}
 
-	// litter.Dump(data)
-
-	// tags := map[string]string{}
-	// tagString := strings.Split(data.Compute.Tags, ";")
-	// for _, tag := range tagString {
-	// 	tuple := strings.Split(tag, ":")
-	// 	tags[tuple[0]] = tuple[1]
-	// }
-
-	// litter.Dump(tags)
-	// log.Info("passed tags")
+//nolint:deadcode,unused
+func parseTags(input string) map[string]string {
+	tags := map[string]string{}
+	tagString := strings.Split(input, ";")
+	for _, tag := range tagString {
+		tuple := strings.Split(tag, ":")
+		tags[tuple[0]] = tuple[1]
+	}
+	return tags
 }
 
 type Metadata struct {

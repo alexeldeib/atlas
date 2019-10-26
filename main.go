@@ -1,7 +1,3 @@
-/*
-Copyright 2019 Alexander Eldeib.
-*/
-
 package main
 
 import (
@@ -9,6 +5,7 @@ import (
 	"os"
 
 	"github.com/alexeldeib/atlas/pkg/controllers"
+	"github.com/alexeldeib/atlas/pkg/imds"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -22,6 +19,7 @@ var (
 )
 
 func init() {
+	//nolint:errcheck
 	_ = clientgoscheme.AddToScheme(scheme)
 
 	// +kubebuilder:scaffold:scheme
@@ -51,11 +49,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	metadata, err := imds.New()
+	if err != nil {
+		setupLog.Error(err, "unable to acquire instance metadata")
+		os.Exit(1)
+	}
+
 	client := mgr.GetClient()
-	// log := ctrl.Log.WithName("atlas")
 
 	if err := (&controllers.ConfigMapController{
-		Client: client,
+		Client:   client,
+		Metadata: metadata,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)

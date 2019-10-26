@@ -1,3 +1,5 @@
+// Copyright 2019 Alexander Eldeib.
+
 package configmap
 
 import (
@@ -57,7 +59,7 @@ var locationToGeography = map[string]string{
 	"koreacentral":       "korea",
 }
 
-func New(data imds.Metadata, namespace string) (*v1.ConfigMap, error) {
+func New(data *imds.Metadata, namespace string) (*v1.ConfigMap, error) {
 	env := getEnv(data.Compute.ResourceGroupName)
 	shortName, err := getShortName(data.Compute.Location)
 	if err != nil {
@@ -75,6 +77,7 @@ func New(data imds.Metadata, namespace string) (*v1.ConfigMap, error) {
 			Namespace: namespace,
 		},
 		Data: map[string]string{
+			"cloud":         data.Compute.AzEnvironment,
 			"resourceGroup": data.Compute.ResourceGroupName,
 			"env":           env,
 			"location":      data.Compute.Location,
@@ -85,20 +88,20 @@ func New(data imds.Metadata, namespace string) (*v1.ConfigMap, error) {
 	return result, nil
 }
 
-func getGeography(location string) (string, error) {
-	geo, ok := locationToGeography[location]
-	if !ok {
-		return "", errors.New("location geography not found")
-	}
-	return geo, nil
-}
-
 func getEnv(group string) string {
 	env := "int"
 	if strings.Contains(group, "prod") {
 		env = "prod"
 	}
 	return env
+}
+
+func getGeography(location string) (string, error) {
+	geo, ok := locationToGeography[location]
+	if !ok {
+		return "", errors.New("location geography not found")
+	}
+	return geo, nil
 }
 
 func getShortName(location string) (string, error) {
