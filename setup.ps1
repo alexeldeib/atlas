@@ -1,3 +1,4 @@
+$env:GO111MODULE="on"
 go get github.com/go-task/task/v2/cmd/task@v2.7.0
 go get golang.org/x/tools/cmd/goimports
 go get github.com/onsi/ginkgo/ginkgo
