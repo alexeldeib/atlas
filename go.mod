@@ -6,7 +6,6 @@ require (
 	github.com/go-logr/zapr v0.1.1 // indirect
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/groupcache v0.0.0-20191002201903-404acd9df4cc // indirect
-	github.com/google/addlicense v0.0.0-20190907113143-be125746c2c4 // indirect
 	github.com/google/go-cmp v0.3.1
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
@@ -27,8 +26,7 @@ require (
 	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	k8s.io/api v0.0.0-20190918195907-bd6ac527cfd2
-	k8s.io/apiextensions-apiserver v0.0.0-20190918201827-3de75813f604
-	k8s.io/apimachinery v0.0.0-20190817020851-f2f3a405f61d
+	k8s.io/apimachinery v0.15.7
 	k8s.io/client-go v0.0.0-20190918200256-06eb1244587a
 	k8s.io/utils v0.0.0-20190801114015-581e00157fb1 // indirect
 	sigs.k8s.io/controller-runtime v0.3.0
